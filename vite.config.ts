@@ -121,7 +121,7 @@ export default defineConfig(({ mode }) => {
       cors: true,
       proxy: {
         [env.VITE_APP_BASE_API]: {
-          target: env.VITE_APP_DEV_PROXY_URL,
+          target: 'http://localhost:8848',
           ws: true,
           changeOrigin: true,
           rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), '')
