@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { onlyMessage } from '@jetlinks-web/utils'
-import { queryTenantMembers, addTenantMember, removeTenantMember } from '../../../api/tenant'
+import { queryTenantMembers, addTenantMember, removeTenantMember } from '../../../../api/tenant'
 
 const props = defineProps<{
   tenantId: string

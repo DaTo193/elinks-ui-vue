@@ -96,7 +96,7 @@
 <script setup lang="ts" name="PlatformTenant">
 import dayjs from 'dayjs'
 import { onlyMessage } from '@jetlinks-web/utils'
-import { queryTenant, deleteTenant } from '../../api/tenant'
+import { queryTenant, deleteTenant } from '../../../api/tenant'
 import TenantSaveDialog from './components/SaveDialog.vue'
 import MemberDialog from './components/MemberDialog.vue'
 
