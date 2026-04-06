@@ -6,6 +6,7 @@ export * from './menu'
 export * from './system'
 export * from './application'
 export * from './ai'
+export * from './tenant'
 
 const pinia = createPinia();
 

@@ -239,6 +239,8 @@ importers:
 
   src/modules/notify-manager-ui: {}
 
+  src/modules/platform-manager-ui: {}
+
   src/modules/rule-engine-manager-ui:
     dependencies:
       cronstrue:

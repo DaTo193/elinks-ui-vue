@@ -1,0 +1,9 @@
+{
+  "name": "platform-manager-ui",
+  "id": "platform-manager",
+  "version": "1.0.0",
+  "description": "Platform manager module for tenant management",
+  "main": "index.ts",
+  "dependencies": {},
+  "peerDependencies": {}
+}
