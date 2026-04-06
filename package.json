@@ -40,6 +40,7 @@
     "marked": "^14.1.4",
     "monaco-editor": "^0.52.2",
     "pinia": "^2.3.1",
+    "resize-observer-polyfill": "^1.5.1",
     "rxjs": "^7.8.2",
     "sharp": "^0.34.3",
     "vue": "^3.3.4",
