@@ -33,10 +33,26 @@ export const deleteTenant = (id: string) => request.remove(`${BASE}/${id}`)
 export const getTenantDetail = (id: string) => request.get(`${BASE}/${id}`)
 
 /**
+ * 查询可用的角色列表
+ */
+export const queryAvailableRoles = () => request.get(`${BASE}/roles`)
+
+/**
+ * 查询可添加的用户（不在指定租户中的用户）
+ */
+export const queryAvailableUsers = (tenantId: string, keyword?: string) => {
+  let url = `${BASE}/users/available?tenantId=${tenantId}`
+  if (keyword && keyword.trim()) {
+    url += `&keyword=${encodeURIComponent(keyword.trim())}`
+  }
+  return request.get(url)
+}
+
+/**
  * 查询租户成员列表
  */
-export const queryTenantMembers = (tenantId: string, data?: any) =>
-  request.get(`${BASE}/${tenantId}/members`, data)
+export const queryTenantMembers = (tenantId: string) =>
+  request.get(`${BASE}/${tenantId}/members`)
 
 /**
  * 添加租户成员

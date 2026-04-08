@@ -100,7 +100,7 @@ import { queryTenant, deleteTenant } from '../../../api/tenant'
 import TenantSaveDialog from './components/SaveDialog.vue'
 import MemberDialog from './components/MemberDialog.vue'
 
-const permission = 'platform/Tenant'
+const permission = 'system/Tenant'
 
 const tableRef = ref()
 const queryParams = ref({})
