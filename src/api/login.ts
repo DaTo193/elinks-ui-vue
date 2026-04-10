@@ -3,9 +3,21 @@ import { request } from '@jetlinks-web/core'
 /**
  * 登录
  * @param data
+ * @param tenantId 租户ID，通过请求头传递
  * @returns
  */
-export const login = (data: any) => request.post('/authorize/login', data)
+export const login = (data: any, tenantId?: string) => {
+  const headers: Record<string, string> = {}
+  if (tenantId) {
+    headers['X-Tenant-Id'] = tenantId
+  }
+  return request.post('/authorize/login', data, { headers })
+}
+
+/**
+ * 获取可用于登录的租户列表（无需认证）
+ */
+export const getTenantListForLogin = () => request.get<any[]>('/tenant/list-for-login')
 
 /**
  * 退出登录

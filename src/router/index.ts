@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { getToken, removeToken } from '@jetlinks-web/utils'
-import { NOT_FIND_ROUTE, LOGIN_ROUTE, OAuth2, OAuthWechat, AccountCenterBind, AUTHORIZE_ROUTE } from './basic'
+import { getToken, removeToken, LocalStore } from '@jetlinks-web/utils'
+import { NOT_FIND_ROUTE, LOGIN_ROUTE, PLATFORM_LOGIN_ROUTE, OAuth2, OAuthWechat, AccountCenterBind, AUTHORIZE_ROUTE } from './basic'
 import { isSubApp } from '@/utils/consts'
 import { useApplication, useUserStore, useSystemStore, useMenuStore } from '@/store'
 import { getDefaultModules } from './globModules'
@@ -13,6 +13,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     LOGIN_ROUTE,
+    PLATFORM_LOGIN_ROUTE,
     OAuth2,
     OAuthWechat,
     AccountCenterBind,
@@ -44,7 +45,11 @@ const NoTokenJump = (to: any, next: any, isLogin: boolean) => {
   if (isLogin || TokenFilterRoute.includes(to.path)) {
     next()
   } else {
-    next({ path: LOGIN_ROUTE.path })
+    // 如果访问的是 /platform/ 下的页面，跳转到平台登录页
+    const loginPath = to.path.startsWith('/platform/')
+      ? PLATFORM_LOGIN_ROUTE.path
+      : LOGIN_ROUTE.path
+    next({ path: loginPath })
   }
 }
 
@@ -117,9 +122,11 @@ const getRoutesByServer = async (to: any, next: any) => {
   }
 }
 
+const LOGIN_PATHS = [LOGIN_ROUTE.path, PLATFORM_LOGIN_ROUTE.path]
+
 router.beforeEach((to, from, next) => {
   const token = getToken()
-  const isLogin = to.path === LOGIN_ROUTE.path
+  const isLogin = LOGIN_PATHS.includes(to.path)
   if (token) {
     if (isLogin) {
       next({ path: '/' })
@@ -135,10 +142,18 @@ export const jumpLogin = () => {
   const { path } = toValue(router.currentRoute)
   if (TokenFilterRoute.includes(path)) return
 
+  // 平台管理员退出到平台登录页，租户用户退出到普通登录页
+  const userStore = useUserStore()
+  const loginPath = userStore.isPlatformAdmin
+    ? PLATFORM_LOGIN_ROUTE.path
+    : LOGIN_ROUTE.path
+
   setTimeout(() => {
     removeToken()
+    LocalStore.remove('tenantId')
+    userStore.tenantId = undefined
     router.replace({
-      path: LOGIN_ROUTE.path
+      path: loginPath
     })
   })
 }

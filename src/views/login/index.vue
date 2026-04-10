@@ -18,6 +18,7 @@
           :logo="systemInfo?.front?.logo"
           :title="layout?.title"
           :bindings="bindings"
+          :hideTenant="isPlatformLogin"
           v-model:loading="loading"
         />
       </div>
@@ -36,6 +37,8 @@ const { t: $t } = useI18n();
 const systemStore = useSystemStore();
 const { systemInfo, layout } = storeToRefs(systemStore);
 const loading = ref(false);
+const route = useRoute();
+const isPlatformLogin = computed(() => route.path === '/platform/login');
 
 const bgImage = getImage("/login/login.png");
 const bindings = ref([]);

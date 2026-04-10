@@ -12,6 +12,16 @@
           :rules="rules"
           @finish="submit"
         >
+          <form-item v-if="!hideTenant" label="租户" name="tenantId" :rules="[{ required: true, message: '请选择租户' }]">
+            <Select
+              v-model:value="formData.tenantId"
+              placeholder="请选择租户"
+              :options="tenantOptions"
+              :field-names="{ label: 'name', value: 'id' }"
+              allow-clear
+              style="width: 100%"
+            />
+          </form-item>
           <form-item :label="$t('login.right.419974-0')" name="username">
             <Input
               v-model:value="formData.username"
@@ -137,13 +147,14 @@ import {
   codeUrl,
   encryptionConfig,
   getInitSet,
+  getTenantListForLogin,
   login,
 } from "@/api/login";
 import { rules } from "./util";
 import {useUserStore} from "@/store";
 import { LocalStore } from "@jetlinks-web/utils";
 import { iconMap } from "./util";
-import { Form, FormItem, Button, Divider, Popover, Input, InputPassword } from 'ant-design-vue'
+import { Form, FormItem, Button, Divider, Popover, Input, InputPassword, Select, SelectOption } from 'ant-design-vue'
 
 import defaultImg from '@/assets/apply/internal-standalone.png'
 import {initPackages} from "@/package";
@@ -174,6 +185,10 @@ const props = defineProps({
   type: {
     type: String,
     default: 'login' // 'login' 'relogin'
+  },
+  hideTenant: {
+    type: Boolean,
+    default: false,
   }
 });
 
@@ -189,7 +204,28 @@ const formData = reactive({
   verifyCode: undefined,
   verifyKey: undefined,
   encryptId: undefined,
+  tenantId: undefined,
 });
+
+// 租户列表
+const tenantOptions = ref([]);
+
+// 加载租户列表（仅租户登录页需要）
+const loadTenants = async () => {
+  if (props.hideTenant) return;
+  try {
+    const resp = await getTenantListForLogin();
+    if (resp.success && resp.result) {
+      tenantOptions.value = resp.result;
+      if (tenantOptions.value.length === 1) {
+        formData.tenantId = tenantOptions.value[0].id;
+      }
+    }
+  } catch (_) {
+    // 获取租户列表失败不影响登录
+  }
+};
+loadTenants();
 
 let timer = null;
 const { data: encryption, run: reloadEncryption } = useRequest(
@@ -229,7 +265,9 @@ const { data: url, run: getCode } = useRequest(codeUrl, {
   },
 });
 
-const { loading, run } = useRequest(login, {
+const { loading, run } = useRequest(
+  (data, tenantId) => login(data, tenantId),
+  {
   immediate: false,
   async onSuccess(res) {
     if (res.success) {
@@ -247,7 +285,8 @@ const { loading, run } = useRequest(login, {
         }
       }
       await userStore.getUserInfo();
-      if (userStore.isAdmin) {
+      if (userStore.isPlatformAdmin) {
+        // 平台管理员：检查是否需要初始化
         const initResp = await getInitSet();
         if (initResp.success && !initResp.result?.length) {
           window.location.href = "/#/init-home";
@@ -279,7 +318,17 @@ const submit = (data) => {
     _formData.password = encrypt(data.password, _encrypt.publicKey);
     _formData.encryptId = _encrypt.id;
   }
-  run(_formData);
+  if (props.hideTenant) {
+    // 平台管理员登录：不带 tenantId，清除租户状态
+    LocalStore.remove('tenantId');
+    userStore.tenantId = undefined;
+    userStore.isPlatformAdmin = false;
+    run(_formData, undefined);
+  } else {
+    // 租户用户登录：带 tenantId
+    LocalStore.set('tenantId', _formData.tenantId);
+    run(_formData, _formData.tenantId);
+  }
 };
 
 const handleClickOther = (item) => {

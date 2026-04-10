@@ -1,6 +1,6 @@
 import { request } from '@jetlinks-web/core'
 
-const BASE = '/api/platform/tenant'
+const BASE = '/platform/tenant'
 
 /**
  * 查询租户列表（分页）

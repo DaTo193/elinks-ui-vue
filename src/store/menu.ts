@@ -8,7 +8,7 @@ import { getOwnMenuThree } from '@/api/system/menu'
 import { getDefaultModules, getGlobModules } from '@/router/globModules'
 import { getExtraRouters } from '@/router/extraMenu'
 import { USER_CENTER_ROUTE, INIT_HOME } from '@/router/basic'
-import { useAuthStore, useApplication } from '@/store'
+import { useAuthStore, useApplication, useUserStore } from '@/store'
 import { OWNER_KEY } from '@/utils/consts'
 import i18n from '@/locales'
 import { BASE_API } from '@jetlinks-web/constants'
@@ -16,7 +16,8 @@ import type { RouteRecordRaw } from 'vue-router'
 
 const $t = i18n.global.t
 
-const defaultOwnParams = [
+// 平台管理员菜单查询条件：owner='platform' 或 NULL 的菜单
+const platformAdminParams = [
   {
     terms: [
       {
@@ -24,13 +25,40 @@ const defaultOwnParams = [
           {
             column: 'owner',
             termType: 'eq',
-            value: OWNER_KEY
+            value: 'platform'
           },
           {
             column: 'owner',
             termType: 'isnull',
             value: '1',
             type: 'or'
+          }
+        ]
+      },
+      {
+        terms: [
+          {
+            value: '%show":false%',
+            termType: 'nlike',
+            column: 'options'
+          }
+        ],
+        type: 'and'
+      }
+    ]
+  }
+]
+
+// 租户用户菜单查询条件：owner != 'platform'（排除平台级菜单）
+const defaultOwnParams = [
+  {
+    terms: [
+      {
+        terms: [
+          {
+            column: 'owner',
+            termType: 'nlike',
+            value: 'platform'
           }
         ]
       },
@@ -144,9 +172,14 @@ export const useMenuStore = defineStore('menu', () => {
   }
 
   const queryMenus = async () => {
+    const userStore = useUserStore()
+    // 平台管理员：只查 owner='platform' 或 NULL 的菜单
+    // 租户用户：只查 owner != 'platform' 的菜单
+    // 前端 terms + 后端 ownerPredicate 双重过滤，防止数据泄露
+    const terms = userStore.isPlatformAdmin ? platformAdminParams : defaultOwnParams
     const resp = await getOwnMenuThree({
       paging: false,
-      terms: defaultOwnParams,
+      terms,
       sorts: [{ name: 'sortIndex', order: 'asc' }]
     })
 

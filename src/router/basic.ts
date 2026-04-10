@@ -38,6 +38,16 @@ export const LOGIN_ROUTE: RouteRecordRaw = {
   },
 };
 
+export const PLATFORM_LOGIN_ROUTE: RouteRecordRaw = {
+  path: "/platform/login",
+  name: "PlatformLogin",
+  // @ts-ignore
+  component: () => import("@/views/login/index.vue"),
+  meta: {
+    title: "平台管理员登录",
+  },
+};
+
 export const NOT_FIND_ROUTE: RouteRecordRaw = {
   path: "/:pathMatch(.*)",
   name: "error",
