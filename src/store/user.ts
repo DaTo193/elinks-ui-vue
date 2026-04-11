@@ -39,15 +39,11 @@ export const useUserStore = defineStore('user', () => {
       setUserInfo(resp.result)
       isAdmin.value = resp.result.username === 'admin'
       isApplicationUser.value = resp.result.type?.id === 'application'
-      // 平台管理员 = admin 用户且不属于任何租户
-      isPlatformAdmin.value = resp.result.username === 'admin' && !resp.result.tenantId
+      // 租户信息仅用于前端展示，不再用于请求头注入
       tenantId.value = resp.result.tenantId
       tenantName.value = resp.result.tenantName
-      if (resp.result.tenantId) {
-        LocalStore.set('tenantId', resp.result.tenantId)
-      } else {
-        LocalStore.remove('tenantId')
-      }
+      // 平台管理员 = admin 用户且无租户
+      isPlatformAdmin.value = resp.result.username === 'admin' && !resp.result.tenantId
       LocalStore.set('userId', resp.result?.id)
     }
   }

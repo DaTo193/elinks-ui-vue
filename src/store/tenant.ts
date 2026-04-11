@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { useUserStore } from './user'
 import { request } from '@jetlinks-web/core'
-import { LocalStore, setToken } from '@jetlinks-web/utils'
 
 type TenantInfo = {
   id: string
@@ -41,13 +40,15 @@ export const useTenantStore = defineStore('tenant', () => {
   }
 
   /**
-   * 切换租户
-   * 设置新的 tenantId 到 store 和 LocalStore，然后刷新页面
+   * 切换租户：先通知后端更新缓存，再刷新页面
    */
-  const switchTenant = (tenantId: string) => {
+  const switchTenant = async (tenantId: string) => {
+    try {
+      await request.post('/tenant/switch', { tenantId })
+    } catch (_) {
+      // ignore
+    }
     userStore.tenantId = tenantId
-    LocalStore.set('tenantId', tenantId)
-    // 刷新页面使新的租户上下文生效
     window.location.href = '/'
   }
 

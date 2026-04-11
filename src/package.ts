@@ -1,4 +1,4 @@
-import {getToken, LocalStore, setToken} from "@jetlinks-web/utils";
+import {getToken, setToken} from "@jetlinks-web/utils";
 import { BASE_API, TOKEN_KEY, TOKEN_KEY_URL } from '@jetlinks-web/constants'
 import {crateAxios, wsClient} from '@jetlinks-web/core'
 import {jumpLogin} from '@/router'
@@ -8,7 +8,6 @@ import Relogin from '@/views/relogin/index.vue'
 import { registerModule } from '@/utils'
 import microApp from '@micro-zoe/micro-app'
 import { moduleRegistry } from '@/utils/module-registry'
-import { useUserStore } from '@/store/user'
 
 /**
  * 初始化package
@@ -71,17 +70,6 @@ export const initAxios = () => {
                     delete config.headers[TOKEN_KEY]
 
                     config.headers[PersonalKey] = PersonalToken.value
-                }
-
-                // 注入租户ID请求头
-                try {
-                    const userStore = useUserStore()
-                    const tid = userStore.tenantId || LocalStore.get('tenantId')
-                    if (tid) {
-                        config.headers['X-Tenant-Id'] = tid
-                    }
-                } catch (_) {
-                    // store 未初始化时忽略
                 }
 
                 return config;

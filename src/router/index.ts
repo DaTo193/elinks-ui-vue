@@ -150,7 +150,6 @@ export const jumpLogin = () => {
 
   setTimeout(() => {
     removeToken()
-    LocalStore.remove('tenantId')
     userStore.tenantId = undefined
     router.replace({
       path: loginPath
