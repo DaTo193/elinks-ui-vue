@@ -58,7 +58,7 @@
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'roleName'">
-          <a-tag color="blue">{{ record.roleName || record.roleId }}</a-tag>
+          <a-tag color="blue">{{ getRoleDisplayName(record) }}</a-tag>
         </template>
         <template v-if="column.key === 'createTime'">
           {{ record.createTime ? new Date(record.createTime).toLocaleString() : '--' }}
@@ -100,6 +100,12 @@ const memberList = ref<any[]>([])
 const roleOptions = ref<any[]>([])
 const userOptions = ref<any[]>([])
 const userSearching = ref(false)
+
+const getRoleDisplayName = (record: any) => {
+  if (record.roleName) return record.roleName
+  const role = roleOptions.value.find((r: any) => r.id === record.roleId)
+  return role?.name || record.roleId
+}
 
 const newMember = reactive({
   userId: undefined as string | undefined,

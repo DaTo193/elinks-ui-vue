@@ -156,7 +156,12 @@ const onSave = () =>
     formRef.value
       .validate()
       .then(() => {
-        resolve(formModel)
+        resolve({
+          permissions: formModel.permissions,
+          accessSupport: formModel.accessSupport,
+          assetType: formModel.assetType,
+          indirectMenus: formModel.indirectMenus,
+        })
       })
       .catch(() => {
         reject(false)

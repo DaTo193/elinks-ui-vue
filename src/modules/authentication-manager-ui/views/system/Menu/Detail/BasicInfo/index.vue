@@ -82,6 +82,8 @@ const handleSave = async (params: any) => {
       menuStore.jumpPage('system/Menu/Detail', {
         params: { id: resp.result.id },
       })
+    } else {
+      emits('refresh')
     }
   }
 }
@@ -102,7 +104,7 @@ const onSave = async () => {
                   ? $t('BasicInfo.index.966110-5')
                   : $t('BasicInfo.index.966110-6'),
     },
-    owner: OWNER_KEY,
+    owner: info.owner || props.value?.owner || OWNER_KEY,
   }
   handleSave(params)
 }

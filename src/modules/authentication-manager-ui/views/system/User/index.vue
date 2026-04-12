@@ -86,6 +86,13 @@
               }}
             </j-ellipsis>
           </template>
+          <template #telephone="slotProps">
+            <j-ellipsis>
+              {{
+                [slotProps.telephone, slotProps.email].filter(Boolean).join(' / ') || '--'
+              }}
+            </j-ellipsis>
+          </template>
           <template #status="slotProps">
             <j-badge-status
                 :status="slotProps.status"
@@ -198,6 +205,7 @@ import {useI18n} from 'vue-i18n';
 import i18n from "@/locales";
 import {queryPageNoPage} from "@authentication-manager-ui/api/system/positions";
 import {isNoCommunity} from '@/utils/utils';
+import {queryTenantNoPaging} from '@platform-manager-ui/api/tenant';
 
 const {t: $t} = useI18n();
 const permission = 'system/User';
@@ -290,22 +298,35 @@ const columns = [
     scopedSlots: true,
   },
   {
-    title: $t('User.index.673867-15'),
+    title: '租户',
+    dataIndex: 'tenantName',
+    key: 'tenantName',
+    ellipsis: true,
+    search: {
+      rename: 'tenant_id',
+      type: 'select',
+      options: () =>
+          new Promise((resolve) => {
+            queryTenantNoPaging({ paging: false }).then((resp: any) => {
+              resolve(
+                  (resp.result || []).map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                  })),
+              );
+            });
+          }),
+    },
+  },
+  {
+    title: '联系方式',
     dataIndex: 'telephone',
     key: 'telephone',
     ellipsis: true,
     search: {
       type: 'string',
     },
-  },
-  {
-    title: $t('User.index.673867-16'),
-    dataIndex: 'email',
-    key: 'email',
-    ellipsis: true,
-    search: {
-      type: 'string',
-    },
+    scopedSlots: true,
   },
   {
     title: $t('User.index.673867-17'),

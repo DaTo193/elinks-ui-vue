@@ -277,6 +277,7 @@ const addChildren = (row: any) => {
       pid: row.id,
       basePath: row.url || '',
       sortIndex: sortIndex + 1,
+      owner: row.owner || '',
     },
   })
 }

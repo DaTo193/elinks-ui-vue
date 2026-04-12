@@ -18,7 +18,7 @@
 
     <template #rightContentRender>
       <div class="right-content">
-        <TenantSwitch />
+        <!-- <TenantSwitch /> -->
         <Language />
         <Resource v-if="systemInfo?.['front']?.resources"/>
         <Notice />

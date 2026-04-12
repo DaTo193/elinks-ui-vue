@@ -347,17 +347,11 @@ const updateRowData = (row, checked) => {
     row.selectAccesses = checked ? (row.selectAccesses || 'creator') : undefined
   }
   // 修改children的值
-  // 注意：对于既没有 buttons 也没有 children 的子节点，它们是"自己管自己"的，不应该被父节点影响
   if (row.children && row.children.length > 0) {
     row.children.forEach((child) => {
       const childRow = flatTableData[child.id];
       if (childRow) {
-        const hasButtons = childRow.buttons && childRow.buttons.length > 0;
-        const hasChildren = childRow.children && childRow.children.length > 0;
-        // 只有当子节点有 buttons 或有 children 时，才递归更新它
-        if (hasButtons || hasChildren) {
-          updateRowData(childRow, checked)
-        }
+        updateRowData(childRow, checked)
       }
     })
   }

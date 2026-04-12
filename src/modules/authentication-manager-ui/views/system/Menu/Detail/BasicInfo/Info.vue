@@ -118,7 +118,20 @@
           </a-row>
         </a-col>
       </a-row>
-
+      <a-form-item label="所属系统" name="owner"
+        :rules="[{ required: true, message: '请选择所属系统', trigger: 'change' }]">
+        <!-- 编辑模式：禁用输入框 -->
+        <a-input v-if="routeParams.id" :value="formModel.owner" disabled />
+        <template v-else>
+          <!-- 有父菜单：继承 owner，禁用 -->
+          <a-input v-if="routeParams.parentId" :value="formModel.owner" disabled />
+          <!-- 根级菜单：下拉选择 owner -->
+          <a-select v-else v-model:value="formModel.owner" placeholder="请选择所属系统">
+            <a-select-option value="platform">平台管理</a-select-option>
+            <a-select-option value="iot">业务系统</a-select-option>
+          </a-select>
+        </template>
+      </a-form-item>
       <a-form-item :label="$t('BasicInfo.Info.607342-15')" name="describe">
         <a-textarea
           v-model:value="formModel.describe"
@@ -128,6 +141,7 @@
           :placeholder="$t('BasicInfo.Info.607342-16')"
         />
       </a-form-item>
+      
     </a-form>
     <!-- 弹窗 -->
     <ChooseIconDialog
@@ -162,6 +176,7 @@ const routeParams = {
   sortIndex: route.query.sortIndex,
   url: route.query.basePath,
   parentId: route.query.pid,
+  owner: route.query.owner || '',
 }
 
 const formModel = reactive({
@@ -172,6 +187,7 @@ const formModel = reactive({
   icon: '',
   describe: '',
   url: routeParams?.url || '',
+  owner: routeParams?.owner || '',
 })
 
 const dialogVisible = ref<boolean>(false)
@@ -197,7 +213,7 @@ const checkCode = async (_rule: any, value: string): Promise<any> => {
   } else {
     const resp: any = await validMenuCode({
       code: value,
-      owner: OWNER_KEY,
+      owner: formModel.owner || OWNER_KEY,
     })
     if (resp.result.passed) return Promise.resolve()
     else return Promise.reject($t('BasicInfo.Info.607342-17'))
@@ -233,10 +249,10 @@ const onSave = () =>
   new Promise((resolve, reject) => {
     formRef.value
       .validate()
-      .then((_data) => {
+      .then(() => {
         resolve({
           ...routeParams,
-          ..._data,
+          ...formModel,
         })
       })
       .catch(() => {
